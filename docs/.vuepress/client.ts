@@ -23,37 +23,74 @@ const tokenize = (q: string) => {
   const lower = q.toLowerCase()
   for (const w of lower.match(/[a-z0-9][a-z0-9.+-]{1,}/g) || []) tokens.add(w)
   const runs = q.match(/[\u4e00-\u9fa5]{2,}/g) || []
+  const STOP = /^(怎么|如何|什么|为什么|能不能|可以|是否|哪里|哪个|一下|问题|办法|情况|回事|请问|求助|解决|这样|那样|怎样|么样|吗|呢)$/
   for (const run of runs) {
     if (run.length <= 4) tokens.add(run)
     for (let i = 0; i < run.length - 1; i++) tokens.add(run.slice(i, i + 2))
+    for (let i = 0; i < run.length - 2; i++) tokens.add(run.slice(i, i + 3))
   }
-  return [...tokens].filter((t) => t.length >= 2).slice(0, 40)
+  return [...tokens].filter((t) => t.length >= 2 && !STOP.test(t)).slice(0, 40)
 }
 
 const searchDocs = (chunks: DocChunk[], q: string) => {
   const tokens = tokenize(q)
-  if (!tokens.length) return { hits: [] as DocChunk[], score: 0 }
+  if (!tokens.length || !chunks.length) return { hits: [] as DocChunk[], score: 0 }
+
+  // 文档频率：词越罕见越有辨识度，但常见词也保留、只是权重低，避免"一个词都不剩"
+  const df = new Map<string, number>()
+  for (const t of tokens) {
+    let n = 0
+    for (const c of chunks) {
+      if (c.text.includes(t) || c.heading.includes(t) || c.title.includes(t)) n++
+    }
+    df.set(t, n)
+  }
+  const weights = new Map<string, number>()
+  for (const t of tokens) {
+    const n = df.get(t) || 0
+    if (n > 0) weights.set(t, (1 + Math.log(chunks.length / n)) * (1 + 0.5 * (t.length - 2)))
+  }
+  if (!weights.size) return { hits: [] as DocChunk[], score: 0 }
+
   const scored = chunks.map((c) => {
     let s = 0
-    for (const t of tokens) {
-      if (c.heading.toLowerCase().includes(t)) s += 6
-      if (c.title.toLowerCase().includes(t)) s += 3
+    let matched = 0
+    let headingHit = false
+    for (const [t, w] of weights) {
+      let hit = false
+      if (c.heading.toLowerCase().includes(t)) {
+        s += 4 * w
+        headingHit = true
+        hit = true
+      }
+      if (c.title.toLowerCase().includes(t)) {
+        s += 6 * w
+        hit = true
+      }
       const n = c.text.toLowerCase().split(t).length - 1
-      s += Math.min(n, 3) * 2
+      if (n > 0) {
+        s += Math.min(n, 3) * w
+        hit = true
+      }
+      if (hit) matched += 1
     }
-    return { c, s }
+    return { c, s, matched, headingHit }
   })
   scored.sort((a, b) => b.s - a.s)
-  const hits = scored.filter((x) => x.s >= 8).slice(0, 4)
-  return { hits: hits.map((x) => x.c), score: scored[0]?.s || 0 }
+  const best = scored[0]
+  if (!best || best.s <= 0 || best.matched < 1) return { hits: [] as DocChunk[], score: 0 }
+  const hits = scored.filter((x) => x.s >= Math.max(6, best.s * 0.35)).slice(0, 6)
+  return { hits: hits.map((x) => x.c), score: best.s }
 }
 
 const searchWeb = async (q: string) => {
+  const ctrl = new AbortController()
+  const timer = setTimeout(() => ctrl.abort(), 4000)
   try {
     const url =
       'https://zh.wikipedia.org/w/api.php?action=query&format=json&origin=*&list=search&srlimit=2&srsearch=' +
       encodeURIComponent(q.slice(0, 60))
-    const resp = await fetch(url)
+    const resp = await fetch(url, { signal: ctrl.signal })
     const data = await resp.json()
     return (data?.query?.search || []).slice(0, 2).map((r: any) => ({
       title: String(r.title),
@@ -62,6 +99,8 @@ const searchWeb = async (q: string) => {
     }))
   } catch {
     return [] as Array<{ title: string; url: string; snippet: string }>
+  } finally {
+    clearTimeout(timer)
   }
 }
 
@@ -332,41 +371,62 @@ const mountAssistant = (host: HTMLElement | null) => {
       } else {
         const chunks = await loadIndex()
         const { hits, score } = searchDocs(chunks, q)
-        const covered = hits.length > 0 && score >= 12
-        const needWeb = !covered && score < 10
-        const webHits = needWeb ? await searchWeb(q) : []
+        const covered = hits.length > 0 && score >= 10
 
-        const context = covered
-          ? `【本站文档原文片段】\n${hits
-              .map((h, i) => `[${i + 1}]《${h.title}》- ${h.heading}\n${h.text.slice(0, 500)}`)
+        // 按“页面”而不是“片段”取上下文：命中最高的 3 篇整页带进来
+        let expanded: DocChunk[] = []
+        if (hits.length) {
+          const titles: string[] = []
+          for (const h of hits) if (!titles.includes(h.title) && titles.length < 3) titles.push(h.title)
+          expanded = titles.flatMap((t) => chunks.filter((c) => c.title === t).slice(0, 6))
+        }
+
+        const webHits = covered ? [] : await searchWeb(q)
+
+        const docPart = covered
+          ? `【本站文档原文片段】\n${expanded
+              .map((h) => `·《${h.title}》${h.heading ? ` - ${h.heading}` : ''}\n${h.text.slice(0, 300)}`)
               .join('\n\n')}`
-          : webHits.length
-          ? `【本站文档没有直接答案；以下是维基百科检索摘要，可能相关】\n${webHits
+          : ''
+        const webPart = webHits.length
+          ? `【本站文档没命中；以下是维基百科检索摘要，仅供参考】\n${webHits
               .map((w) => `· ${w.title}：${w.snippet}`)
               .join('\n')}`
           : ''
 
         const rule = covered
-          ? '只依据上面文档原文作答。先判断哪一段和用户描述的现象最接近，用那段作答，别把别小节的步骤拼进来。用简洁中文列可执行步骤，不要编造文档里没有的按钮名和路径，也不要在正文里写 [1] 这类编号，出处由界面自动附。涉及版本号、数字对应关系的，直接照抄原文取值，不要改写。'
-          : '本站文档没有这条内容。能推断就给通用方向，并明确说明这不是本站文档内容。'
+          ? '直接依据【本站文档原文片段】回答用户的问题，片段可能来自几篇不同页面：先判断用户问的是哪个对象，只取对应那一篇（例如问“启动器怎么安装”就用《安装与更新》里的下载、安装、确认三步），不要把“给实例装模组”“某个具体报错”“怎么更新”的步骤拼进来。不要复述文档里的提问模板或示例话术。用简洁中文列可执行步骤，不编造原文没有的按钮名和路径，正文不写 [1] 这类编号。'
+          : '先依据【用户当前所在页面】作答；页面里确实没有，就给通用方向，并说明这部分不是本站文档写的。'
 
         history.push({
           role: 'user',
-          content: `${pageContext()}\n\n${context}\n\n【要求】${rule}\n我的问题：${q}`,
+          content: `${covered ? `【用户当前在：${pageTitle()}】` : pageContext()}\n\n${docPart}${
+            webPart ? `\n\n${webPart}` : ''
+          }\n\n【要求】${rule}\n我的问题：${q}`,
         })
         res = await callApi('/chat', { messages: history.slice(-10) })
         history.push({ role: 'assistant', content: res.answer })
         typing.remove()
 
         const bubble = addMsg('bot', res.answer)
-        const sources: Source[] = covered
+
+        // 模型自己都说"未收录"，就别挂文档出处，改走网络来源
+        const saysMissing = /未收录|没收录|没有收录|未找到相关|文档中没有|文档里没有|暂未覆盖/.test(
+          res.answer.slice(0, 100),
+        )
+        let finalCovered = covered && !saysMissing
+        let web = webHits
+        if (!finalCovered && !web.length) web = await searchWeb(q)
+
+        ;(window as any).L = ((window as any).L || []).concat([{ stage: 'pre', fc: finalCovered, w: web.length }])
+        const sources: Source[] = finalCovered
           ? hits.map((h) => ({
               title: h.heading ? `${h.title} · ${h.heading}` : h.title,
               url: h.url,
               kind: 'doc' as const,
             }))
-          : webHits.map((w) => ({ title: w.title, url: w.url, kind: 'web' as const }))
-        addSources(bubble, sources, covered, q)
+          : web.map((w) => ({ title: w.title, url: w.url, kind: 'web' as const }))
+        addSources(bubble, sources, finalCovered, q)
         if (res.think) appendThink(bubble, res.think)
       }
     } catch (e: any) {

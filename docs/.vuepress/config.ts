@@ -30,13 +30,13 @@ export default defineUserConfig({
   lang: 'zh-CN',
   title: '竹络 | ChronLink',
   description: '竹络 ChronLink 使用手册：安装、实例管理、内容中心、皮肤与联机、实验室。',
-  base: process.env.DOCS_BASE || '/chronlink-docs/',
+  base: process.env.DOCS_BASE || '/',
   bundler: viteBundler(),
   head: [
     ['link', { rel: 'icon', href: '/logo.png' }],
   ],
   theme: plumeTheme({
-    hostname: 'https://maoxinhe.github.io/chronlink-docs/',
+    hostname: 'https://help.camzy.tech/',
     logo: '/logo.png',
     docsRepo: 'https://github.com/maoxinhe/chronlink-docs',
     docsBranch: 'main',
