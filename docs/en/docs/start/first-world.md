@@ -43,7 +43,7 @@ This page has no translation yet; the Chinese original is shown.
 
 ## 创建第一个实例
 
-「实例」就是一套独立的 Minecraft：游戏版本 + 加载器 + 模组的组合。
+「实例」就是一套独立的 Minecraft：==游戏版本 + 加载器== + 模组的组合。
 
 1. 点侧边栏的 **＋（创建实例）**，选择「全新创建」：
 2. 填写名称、选游戏版本、选加载器，点「创建实例」：

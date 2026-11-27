@@ -32,7 +32,7 @@ This page has no translation yet; the Chinese original is shown.
 - 每个版本对应哪个游戏版本、哪个加载器
 - 点某个版本可以直接安装
 
-**新手注意**：选版本时看准“游戏版本 + 加载器”两列，和你实例一致才行。
+**新手注意**：选版本时看准“==游戏版本 + 加载器==”两列，和你实例一致才行。
 
 ## 更新日志 (Changelog)
 

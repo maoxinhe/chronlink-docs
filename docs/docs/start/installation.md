@@ -23,13 +23,13 @@ createTime: 2026/11/27 17:37:02
 | Windows ARM（骁龙本等） | `ChronLink_<版本>_arm64_modern-setup.exe` | 同上，ARM 架构专用 |
 | 喜欢绿色软件 | `ChronLink_<版本>_x64_portable.zip` | 免安装，解压直接运行 |
 
-每个安装包旁边都有一份同名的 `.sig` 文件，那是签名，别删也别改——启动器的自动更新会校验它。
+每个安装包旁边都有一份同名的 ==`.sig`== 文件，那是签名，别删也别改——启动器的自动更新会校验它。
 
 ::: tip 版本号看不懂没关系
 文件名里的 `<版本>` 只是会变，格式不变：`ChronLink_1.11.2-beta.4_x64_modern-setup.exe` 这样认就行。
 :::
 
-> 目前 ChronLink 只发布 **Windows** 版本（x64 / arm64）。macOS 与 Linux 的构建还在计划中，发布后同样出现在这个页面。
+> 目前 ChronLink 只发布 ==**Windows**== 版本（x64 / arm64）。macOS 与 Linux 的构建还在计划中，发布后同样出现在这个页面。
 
 ## 第二步：安装
 
