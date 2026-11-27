@@ -8,17 +8,6 @@
   --vp-c-accent-hover: #c0417b;
   --vp-c-accent-bg: #d4568f14;
   --vp-c-accent-hover-bg: #d4568f22;
-
-  /* 页面底色：竹络粉调白 */
-  --vp-c-bg: #fff5f7;
-  --vp-c-bg-alt: #fdeef3;
-  --vp-c-bg-soft: #fbe6ee;
-  --vp-c-bg-elv: #fffafc;
-  --vp-c-bg-elv-up: #fffafc;
-  --vp-c-bg-elv-down: #fdeef3;
-  --vp-c-border: #f2dbe4;
-  --vp-c-divider: #f2dbe4;
-  --vp-c-gutter: #f7e4eb;
 }
 
 [data-theme='dark'] {
@@ -45,13 +34,17 @@
   .vp-home-hero .hero-name { font-size: 2rem !important; }
 }
 
-/* 浅色模式底色：马卡龙主题色 #FFF5F7 */
+/* 浅色模式底色：马卡龙主题色 #FFF5F7（仅浅色生效，深色保持主题原色） */
 :root:not([data-theme='dark']) {
   --vp-c-bg: #fff5f7;
   --vp-c-bg-alt: #fdeef3;
   --vp-c-bg-soft: #fbe6ee;
   --vp-c-bg-elv: #ffffff;
+  --vp-c-bg-elv-up: #ffffff;
+  --vp-c-bg-elv-down: #fdeef3;
+  --vp-c-border: #f2dbe4;
   --vp-c-divider: #f2dfe6;
+  --vp-c-gutter: #f7e4eb;
 }
 
 
@@ -61,16 +54,12 @@
 .vp-doc table {
   background-color: var(--vp-c-bg-elv);
 }
-.vp-doc table tr:nth-child(2n) {
-  background-color: var(--vp-c-bg-soft);
-}
 
-/* 底色微调：表头别太压、斑马纹更淡、引用块统一浅粉 */
-.vp-doc table th {
+/* 底色微调（仅浅色）：表头柔粉、斑马纹更淡 */
+:root:not([data-theme='dark']) .vp-doc table th {
   background-color: #f9e2ec;
-  color: var(--vp-c-text-1);
 }
-.vp-doc table tr:nth-child(2n) {
+:root:not([data-theme='dark']) .vp-doc table tr:nth-child(2n) {
   background-color: #fffafc;
 }
 .vp-doc blockquote,
