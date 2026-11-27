@@ -4,7 +4,7 @@ const API_BASE = 'https://user.camzy.tech'
 const API_KEY = 'ak_bA636FVtGVqWTIgY1BBYWWrcLgd-eCMr'
 
 export type DocChunk = { title: string; heading: string; url: string; text: string }
-export type Source = { title: string; url: string; kind: 'doc' | 'web' }
+export type Source = { title: string; url: string; kind: 'doc' | 'web' | 'model' }
 export type AskResult = { answer: string; sources: Source[]; covered: boolean }
 
 let indexPromise: Promise<DocChunk[]> | null = null
@@ -210,17 +210,42 @@ export const askVision = async (image: string, question: string) => {
  * @param q 用户问题
  * @param history 之前的对话（role/content）
  */
+const tryMath = (q: string): string | null => {
+  const expr = q
+    .replace(/[\u4e00-\u9fa5]/g, (m) => (m === '点' ? '.' : m))
+    .replace(/请|帮我|算一下|计算|等于|是多少|多少钱|结果|＝|=|＜|？|\?|，|,|。|多少/g, '')
+    .replace(/\s+/g, '')
+    .trim()
+  if (!/^[0-9.+\-*/()%\s]+$/.test(expr) || !/[0-9]/.test(expr) || !/[+\-*/%]/.test(expr)) return null
+  try {
+    // eslint-disable-next-line no-new-func
+    const v = Function(`"use strict";return (${expr})`)()
+    if (typeof v !== 'number' || !isFinite(v)) return null
+    return `${expr} = ${Math.round(v * 1e6) / 1e6}`
+  } catch {
+    return null
+  }
+}
+
 export const ask = async (
   q: string,
   history: Array<{ role: 'user' | 'assistant'; content: string }> = [],
+  opts: { online?: boolean } = {},
 ): Promise<AskResult> => {
+  const math = tryMath(q)
+  if (math !== null) return { answer: math, sources: [], covered: true }
+
   const fact = FACTS.find((f) => f.re.test(q))
   if (fact) return { answer: fact.a, sources: [{ title: fact.t, url: fact.url, kind: 'doc' }], covered: true }
 
   const chunks = await loadIndex()
   const { hits, score } = searchDocs(chunks, q)
   // 用户明确说“上网搜/搜一下/查一下”时，不允许用本站文档抢答
-  const wantsWeb = /(上网|网上搜|搜一下|搜索一下|帮我搜|联网|百度一下|查一下|谷歌|google|bing)/i.test(q)
+  // 用户点了「联网」，或话里带了搜索动词，都走联网分支
+  const wantsWeb =
+    !!opts.online || /(上网|网上搜|搜一下|搜索一下|帮我搜|联网|百度一下|查一下|谷歌|google|bing)/i.test(q)
+  // 需要实时数据的问题，检索不到就不硬答
+  const liveQuery = /(天气|气温|降雨|股价|汇率|比分|赛程|新闻|头条|热搜|今天|现在几点|实时|最新版本发布|票价|航班)/i.test(q)
   const covered = !wantsWeb && hits.length > 0 && score >= 12
 
   let expanded: DocChunk[] = []
@@ -252,10 +277,12 @@ export const ask = async (
   const rule = wantsWeb
     ? webHits.length
       ? '用户要求联网检索：只依据【检索摘要】里的事实作答，开头注明“（以下为外部检索结果，非本站文档原文）”，并保留摘要里的关键数字；摘要里没有的内容不要补。'
-      : '用户要求联网检索，但本站只接了维基百科检索、这次没查到条目。不要编造任何具体数据（天气、价格、比分、日期都不许猜）。回答两句话：说明这个问题不在本站文档范围、本次外部检索没有结果；然后告诉用户可以点下面按钮直接去搜索。'
+      : liveQuery
+      ? '这个问题需要实时数据，外部检索这次没拿到结果。不要编任何数字。只说一句：这类实时信息我这边这次没检索到，可点下面的搜索链接自己确认。'
+      : '外部检索没查到条目。直接用你自己的知识把这个问题答清楚：第一行就给结论，能算的直接算出结果，别拿“文档没写”当理由，也别让用户自己去搜。开头注明“（模型知识，非本站文档原文）”。只有涉及实时/时效数据时才说需要联网确认。不许说“文档未收录”“无法回答”。'
     : covered
     ? '直接依据【本站文档原文片段】回答用户的问题，片段可能来自几篇不同页面：先判断用户问的是哪个对象，只取对应那一篇，不要把不相干的步骤拼进来。不要复述文档里的提问模板或示例话术。用简洁中文列可执行步骤，不编造原文没有的按钮名和路径，正文不写 [1] 这类编号。'
-    : '本站文档没有直接对应的内容：能给通用方向就给，但必须说明这部分不是本站文档写的；不要编具体数字。'
+    : '本站文档没有直接对应的内容：用你自己的知识直接、简短地给出答案，第一行就是结论，开头标注“（模型知识，非本站文档原文）”；不要输出“未收录”“文档中没有”这类话，也不要把用户推去自己搜索；涉及实时数据才说明需要联网确认。'
 
   const messages = [
     ...history.slice(-8),
@@ -273,15 +300,6 @@ export const ask = async (
   const finalCovered = covered && !saysMissing
   let web = webHits
   if (!finalCovered && !web.length) web = await searchWeb(q)
-  if (!finalCovered && !web.length) {
-    web = [
-      {
-        title: `去搜索：${q.slice(0, 20)}`,
-        url: 'https://www.bing.com/search?q=' + encodeURIComponent(q),
-        snippet: '外部搜索引擎',
-      },
-    ]
-  }
 
   const docHits: DocChunk[] = intentTitle ? expanded.slice(0, 2) : hits.slice(0, 4)
   const sources: Source[] = finalCovered
@@ -290,7 +308,11 @@ export const ask = async (
         url: h.url,
         kind: 'doc' as const,
       }))
-    : web.map((w) => ({ title: w.title, url: w.url, kind: 'web' as const }))
+    : web.length
+    ? web.map((w) => ({ title: w.title, url: w.url, kind: 'web' as const }))
+    : liveQuery || web.length === 0
+    ? [{ title: '模型知识（非本站文档）', url: '', kind: 'model' as const }]
+    : []
 
   return { answer: res.answer, sources, covered: finalCovered }
 }

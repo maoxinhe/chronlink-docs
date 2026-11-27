@@ -70,8 +70,7 @@ const submit = async (forced?: string) => {
       const answer = await askVision(image, q)
       messages.value.push({ role: 'assistant', text: answer })
     } else {
-      const prefix = online.value ? `请联网检索：${q}` : q
-      const res = await ask(prefix)
+      const res = await ask(q, [], { online: online.value })
       messages.value.push({
         role: 'assistant',
         text: res.answer,
@@ -126,7 +125,7 @@ onMounted(() => {
               :key="k"
               class="src"
               :class="s.kind"
-              :href="s.url"
+              :href="s.url || undefined"
               target="_blank"
               rel="noopener"
             >
@@ -290,6 +289,10 @@ onMounted(() => {
 .src .dot { width: 6px; height: 6px; border-radius: 50%; background: #d4568f; flex: 0 0 auto; }
 .src.web { border-color: #d8e4f5; background: #f6faff; color: #3b5d8c; }
 .src.web .dot { background: #4a7ac2; }
+.src.model { border-color: var(--vp-c-divider, #e7e7ea); background: transparent; color: var(--vp-c-text-2, #6a6c72); }
+.src.model .dot { background: #a3a6ad; }
+a.src { cursor: pointer; }
+a.src[href=''], .src.model { cursor: default; }
 
 .quick { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 6px 0 22px; }
 .quick button {
