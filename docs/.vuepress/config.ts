@@ -98,38 +98,5 @@ export default defineUserConfig({
         { text: '其他', prefix: '/docs/more/', collapsed: false, items: more },
       ],
     },
-    locales: {
-      '/en/': {
-        lang: 'en-US',
-        title: 'ChronLink',
-        description: 'ChronLink user manual',
-        navbar: [
-          { text: 'Home', link: '/en/' },
-          {
-            text: 'Docs',
-            prefix: '/en/docs/',
-            items: [
-              { text: 'Getting started', prefix: '/en/docs/start/', items: ['getting-started.md', 'installation.md'] },
-              { text: 'Instances', prefix: '/en/docs/instance/', items: ['interface.md', 'what-is-instance.md'] },
-              { text: 'Content', prefix: '/en/docs/content/', items: ['content-center.md', 'install-content.md'] },
-              { text: 'Skins & Online', prefix: '/en/docs/online/', items: ['skins.md', 'multiplayer.md'] },
-              { text: 'Lab', prefix: '/en/docs/lab/', items: ['lab.md', 'seed-map.md'] },
-              { text: 'FAQ', link: '/en/docs/more/faq.md' },
-            ],
-          },
-          { text: 'Download', link: 'https://launcher.camzy.tech/' },
-        ],
-        sidebar: {
-          '/en/docs/': [
-            { text: 'Getting started', prefix: '/en/docs/start/', collapsed: false, items: start },
-            { text: 'Instances', prefix: '/en/docs/instance/', collapsed: false, items: instance },
-            { text: 'Content', prefix: '/en/docs/content/', collapsed: false, items: content },
-            { text: 'Skins & Online', prefix: '/en/docs/online/', collapsed: false, items: online },
-            { text: 'Lab', prefix: '/en/docs/lab/', collapsed: false, items: lab },
-            { text: 'More', prefix: '/en/docs/more/', collapsed: false, items: more },
-          ],
-        },
-      },
-    },
   }),
 })
