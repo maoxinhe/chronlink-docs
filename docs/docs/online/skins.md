@@ -13,6 +13,10 @@ createTime: 2026/11/27 17:36:45
 
 **皮肤**就是你在游戏里角色的外观。默认的 Steve / Alex 看腻了？换上自己喜欢的皮肤，游戏体验完全不一样。
 
+<a class="doc-shot-link" href="/shots/gui-skins.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-skins.webp" alt="皮肤选择器：「创建皮肤」「查找玩家皮肤」，中间空位可以拖入皮肤文件" /></a>
+<p class="shot-cap">皮肤选择器：「创建皮肤」「查找玩家皮肤」，中间空位可以拖入皮肤文件 · 点图可看大图</p>
+
+
 ### 正版账户的皮肤
 
 正版账户可以在游戏里或 Minecraft 官网换皮肤，登录后自动同步显示。

@@ -40,6 +40,9 @@ IP 从哪来？
 4. 保存
 
 服务器会显示**在线状态**（开没开、多少人玩），一目了然。
+<a class="doc-shot-link" href="/shots/gui-multiplayer.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-multiplayer.webp" alt="多人游戏页：中间「启动联机」开房，右上角切换联机方案，左上「服务器」看已存服务器" /></a>
+<p class="shot-cap">多人游戏页：中间「启动联机」开房，右上角切换联机方案，左上「服务器」看已存服务器 · 点图可看大图</p>
+
 
 ## 点进服务器
 

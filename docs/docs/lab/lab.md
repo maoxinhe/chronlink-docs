@@ -15,6 +15,9 @@ createTime: 2026/11/27 17:36:45
 
 ## 工具一览
 
+<a class="doc-shot-link" href="/shots/gui-lab.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-lab.webp" alt="实验室：每个工具右侧「进入」，右上角还能按类型筛" /></a>
+<p class="shot-cap">实验室：每个工具右侧「进入」，右上角还能按类型筛 · 点图可看大图</p>
+
 | 工具 | 用途 | 目标对象 |
 |---|---|---|
 | 种子地图 | 输入种子，然后查找结构与群系 | 想找好出生点的生存玩家 |

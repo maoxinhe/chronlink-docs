@@ -38,6 +38,9 @@ createTime: 2026/11/27 17:36:45
 - **平台**：只看 Modrinth 或只看 CurseForge
 - **分类**：按类型筛
 - **加载器**：只看 Fabric 或只看 Forge 的模组（**注意：加载器必须和你实例一致**）
+<a class="doc-shot-link" href="/shots/gui-browse-filter.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-browse-filter.webp" alt="列表上方是排序方式，右侧「类别」按多人 / 科技 / 冒险等筛选" /></a>
+<p class="shot-cap">列表上方是排序方式，右侧「类别」按多人 / 科技 / 冒险等筛选 · 点图可看大图</p>
+
 
 ## 排行榜和推荐
 

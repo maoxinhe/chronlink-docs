@@ -60,6 +60,9 @@ createTime: 2026/11/27 17:36:45
 
 ### 内容与下载
 
+<a class="doc-shot-link" href="/shots/gui-settings-download.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-settings-download.webp" alt="内容与下载：首选下载源默认 Modrinth，网络不好可以换镜像" /></a>
+<p class="shot-cap">内容与下载：首选下载源默认 Modrinth，网络不好可以换镜像 · 点图可看大图</p>
+
 - **下载来源**：Modrinth / CurseForge 的镜像与站点选择
 - **强制多连接下载**：下载慢就开这个（下载页的提示也会带你过来）
 - 高级下载信息、安装行为（自动安装前置、安装未知整合包前提醒）

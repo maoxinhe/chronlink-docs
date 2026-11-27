@@ -16,6 +16,9 @@ createTime: 2026/11/27 17:36:45
 侧边栏点 **实例库**，所有实例都在这里：
 
 - 顶部标签：**全部实例 / 整合包 / 服务器 / 自定义**，按来源分类
+<a class="doc-shot-link" href="/shots/gui-library-manage.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-library-manage.webp" alt="实例库：左上角可切换排序、分组和列表 / 网格视图" /></a>
+<p class="shot-cap">实例库：左上角可切换排序、分组和列表 / 网格视图 · 点图可看大图</p>
+
 - 搜索框支持按名称查找；右侧可以按名称排序、按分组归类
 - **新建分组**：给实例归类（比如“生存”“模组”“服务器包”），分组显示在侧边栏
 - 鼠标悬停实例卡片可以查看详情、右键有更多操作

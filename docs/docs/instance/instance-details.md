@@ -38,6 +38,9 @@ createTime: 2026/11/27 17:36:45
 
 - 资源包、光影包、配置文件都在这里
 - 一般新手用不上，但想手动放文件时能找到
+<a class="doc-shot-link" href="/shots/gui-instance-files.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-instance-files.webp" alt="「文件」看实例目录，「日志」看运行输出——崩溃先看日志" /></a>
+<p class="shot-cap">「文件」看实例目录，「日志」看运行输出——崩溃先看日志 · 点图可看大图</p>
+
 
 ## 日志 (Logs)
 

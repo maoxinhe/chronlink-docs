@@ -12,6 +12,9 @@ createTime: 2026/11/27 17:36:45
 > 次世代 Minecraft 桌面客户端——全能、美观、全平台覆盖。
 > 
 > **你的最后一款启动器。**
+<a class="doc-shot-link" href="/shots/gui-home-start.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-home-start.webp" alt="首页：箭头处「开始游戏」直接进上次的实例，「切换实例」换别的" /></a>
+<p class="shot-cap">首页：箭头处「开始游戏」直接进上次的实例，「切换实例」换别的 · 点图可看大图</p>
+
 
 ## 这份文档是写给谁的？
 
