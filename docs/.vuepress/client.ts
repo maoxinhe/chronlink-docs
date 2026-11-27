@@ -104,6 +104,21 @@ const searchWeb = async (q: string) => {
   }
 }
 
+
+// 常见问法 -> 对应文档页（比纯词频检索更稳，避免"怎么安装"被答成某个报错页）
+const INTENTS: Array<[RegExp, string]> = [
+  [/杀毒|报毒|拦截|白屏|权限|无法写入|被占用|未知来源|smartscreen|virus/i, 'Windows 安装与权限问题'],
+  [/java|jdk|jre|运行环境/i, 'Java 环境问题'],
+  [/崩溃|闪退|打不开|启动不了|报错|日志|crash/i, '启动崩溃排查'],
+  [/正版验证|离线账户|正版账户|登不上|登录失败/i, '联机与正版验证问题'],
+  [/联机|开服|服务端|端口|好友|多人/i, '联机与服务端'],
+  [/模组|mod|整合包|光影|资源包|材质包/i, '模组与整合包'],
+  [/导入|导出|迁移|备份/i, '实例导入与导出'],
+  [/安装|装好|卸载|更新|下载哪个|便携版/i, '安装与更新'],
+  [/皮肤|外观|主题/i, '皮肤与个性化'],
+  [/实例|整合包进不去/i, '管理实例'],
+]
+
 const mountAssistant = (host: HTMLElement | null) => {
   if (document.getElementById('cl-ai')) return
   const embedded = !!host
@@ -282,11 +297,21 @@ const mountAssistant = (host: HTMLElement | null) => {
   }
 
   const callApi = async (endpoint: '/chat' | '/vision', payload: Record<string, unknown>) => {
-    const resp = await fetch(`${API_BASE}/api/user/ai${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
-      body: JSON.stringify(payload),
-    })
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 25000)
+    let resp: Response
+    try {
+      resp = await fetch(`${API_BASE}/api/user/ai${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal,
+      })
+    } catch (e: any) {
+      throw new Error(e?.name === 'AbortError' ? '接口超时了，稍后再试一次' : '网络连不上助手接口')
+    } finally {
+      clearTimeout(timer)
+    }
     let data: any = {}
     try {
       data = await resp.json()
@@ -375,11 +400,14 @@ const mountAssistant = (host: HTMLElement | null) => {
 
         // 按“页面”而不是“片段”取上下文：命中最高的 3 篇整页带进来
         let expanded: DocChunk[] = []
-        if (hits.length) {
-          const titles: string[] = []
-          for (const h of hits) if (!titles.includes(h.title) && titles.length < 3) titles.push(h.title)
-          expanded = titles.flatMap((t) => chunks.filter((c) => c.title === t).slice(0, 6))
+        const intentTitle = INTENTS.find(([re]) => re.test(q))?.[1]
+        if (intentTitle) {
+          expanded = chunks.filter((c) => c.title === intentTitle).slice(0, 6)
         }
+        const titles: string[] = []
+        for (const h of hits) if (!titles.includes(h.title) && titles.length < 2) titles.push(h.title)
+        expanded = [...expanded, ...titles.flatMap((t) => chunks.filter((c) => c.title === t).slice(0, 4))]
+        expanded = expanded.filter((c, i, a) => a.findIndex((x) => x === c) === i).slice(0, 9)
 
         const webHits = covered ? [] : await searchWeb(q)
 
@@ -419,8 +447,11 @@ const mountAssistant = (host: HTMLElement | null) => {
         if (!finalCovered && !web.length) web = await searchWeb(q)
 
         ;(window as any).L = ((window as any).L || []).concat([{ stage: 'pre', fc: finalCovered, w: web.length }])
+        const docHits: DocChunk[] = intentTitle
+          ? [...chunks.filter((c) => c.title === intentTitle).slice(0, 2), ...hits]
+          : hits
         const sources: Source[] = finalCovered
-          ? hits.map((h) => ({
+          ? docHits.map((h) => ({
               title: h.heading ? `${h.title} · ${h.heading}` : h.title,
               url: h.url,
               kind: 'doc' as const,
