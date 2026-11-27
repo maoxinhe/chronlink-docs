@@ -45,44 +45,6 @@
   .vp-home-hero .hero-name { font-size: 2rem !important; }
 }
 
-/* 右下角阅读进度 */
-#reading-progress {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  width: 56px;
-  height: 56px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--vp-c-bg);
-  border: 1px solid var(--vp-c-divider);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-  z-index: 40;
-}
-#reading-progress.is-visible { opacity: 1; }
-#reading-progress svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-#reading-progress .track { fill: none; stroke: var(--vp-c-divider); stroke-width: 2.5; }
-#reading-progress .bar {
-  fill: none;
-  stroke: var(--vp-c-brand-1);
-  stroke-width: 2.5;
-  stroke-dasharray: 97.4 97.4;
-  stroke-dashoffset: 97.4;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
-  transition: stroke-dashoffset 0.15s linear;
-}
-#reading-progress span {
-  position: relative;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--vp-c-text-1);
-}
-
 /* 浅色模式底色：马卡龙主题色 #FFF5F7 */
 :root:not([data-theme='dark']) {
   --vp-c-bg: #fff5f7;
