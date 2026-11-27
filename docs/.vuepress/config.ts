@@ -54,6 +54,7 @@ export default defineUserConfig({
       content: '部分页面还在补截图与细节，发现缺漏可以直接在仓库提 Issue。',
       lifetime: 'once',
       layout: 'bottom-right',
+      enablePage: (page: any) => page.path === '/' || page.path === '/en/',
     },
     sidebarMenuLabel: '菜单',
     contributorsText: '贡献者',
