@@ -13,10 +13,6 @@ createTime: 2026/11/27 17:36:45
 
 当然能！这就是模组的魅力。
 
-[**从零上手MC-怎么添加模组mod**](https://www.bilibili.com/video/BV1FWhF61EjC/)
-
-[**从零上手MC-怎么添加光影**](https://www.bilibili.com/video/BV1td4R6qELN/)
-
 ## 先搞懂四个名词
 
 | 名词 | 大白话解释 | 例子 |

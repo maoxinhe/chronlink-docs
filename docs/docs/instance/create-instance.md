@@ -11,12 +11,6 @@ createTime: 2026/11/27 17:36:45
 
 账户登录好了，现在创建一个属于你的“游戏环境”——在 ChronLink 里叫**实例**。
 
-[**从零上手MC-怎么创建原版实例**](https://www.bilibili.com/video/BV1PN896eETv/)
-
-[**从零上手MC-怎么添加模组mod**](https://www.bilibili.com/video/BV1FWhF61EjC/)
-
-[**从零上手MC-怎么添加光影**](https://www.bilibili.com/video/BV1td4R6qELN/)
-
 ## 先搞懂两个名词
 
 ### 游戏版本是什么？

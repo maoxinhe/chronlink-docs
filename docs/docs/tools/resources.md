@@ -54,7 +54,6 @@ Minecraft 本体跑在 Java 上，版本对不上就起不来。
 ## 查资料
 
 - Minecraft Wiki（中文）：[zh.minecraft.wiki](https://zh.minecraft.wiki/)
-- 视频教程合集：[B 站 · 从零上手 MC](https://space.bilibili.com/1058529366)
 
 ::: tip 别从搜索引擎随便下
 搜「Minecraft 启动器下载」排在前面的很多是带捆绑的第三方站。认准上面这几个地址，尤其是 GitHub Releases 和官网。
