@@ -1,6 +1,6 @@
 ---
 title: 常见问题
-description: 本文档包含一些常见的问题，如果你有功能相关的问题，可以前往本知识库的下一篇文档查看。
+description: 下载安装、登录、资源下载、实例导入、实例使用等常见问题的汇总。
 order: 1
 pageLayout: doc
 permalink: /docs/more/faq.html
@@ -9,146 +9,91 @@ createTime: 2026/11/27 17:36:45
 
 # 常见问题
 
-本文档包含一些常见的问题，如果你有功能相关的问题，可以前往本知识库的下一篇文档查看。
+下面是玩家问得最多的问题，按「下载安装 → 登录 → 资源下载 → 实例导入 → 实例使用 → 其他」分类。本篇随版本更新，示例以 ChronLink 1.11.2-beta.4 为准。
 
-本篇 FAQ 随版本更新；示例以 ChronLink 1.11.2-beta.4 为准。
+这里没找到你的问题，可以看左侧[故障排查](../troubleshoot/windows.md)四篇（Windows 安装与权限、Java 环境、启动崩溃、联机与正版验证），或直接问右下角的 AI 助手。
 
-另：如果你是新手，可以访问 [官方教程](https://space.bilibili.com/1058529366) 中的视频，会定期更新，可以帮助你从零上手MC
+> 反馈问题时请带上：做了什么操作、期望结果、实际结果，以及实例日志（实例详情页 → 文件 → 日志）。有日志才好定位。
 
-**请确保您在提问时，图片清晰完整，描述准确，您可以采用如下提问格式：**
+**杀毒软件拦截安装包或启动器**：火绒、360、卡巴对未签名的开源 exe 经常误报。ChronLink 源码完全公开（[GitHub](https://github.com/maoxinhe/ChronLink)），可自行审查；误报请把文件加入信任，或临时关防护完成安装。
 
-**我准备[做什么]，我的操作是[某操作]，操作的结果是[结果]，日志是这样的：[如果有日志可以发送]，希望各位帮一下，感谢！**
+## I. 下载与安装
 
-**注：如果您在群中多次提问文档中已经有的问题，可能不会有人回答您。**
+### 我该下载哪个文件？
 
-强烈建议观看此视频以学习如何进行提问：[https://www.bilibili.com/video/BV1uZH56jECo/](https://www.bilibili.com/video/BV1uZH56jECo/)
+**ChronLink 只发布 Windows 版本：x64（绝大多数 Intel / AMD 机器）和 arm64（骁龙 X 系列等 ARM 设备），没有 macOS、Linux、安卓、鸿蒙版本。**
 
-如果您的下载启动器后，被火绒/卡巴斯基等安全软件拦截，系误报行为，我们已经联系他们，但是具体更新需要等待，请信任ChronLink软件，ChronLink完全开源，有不放心的用户可以自行审查。
+到 [GitHub Releases](https://github.com/maoxinhe/ChronLink/releases/latest) 按文件名挑：
 
-## -I 我要下载哪个文件？
+- `ChronLink_<版本>_x64_modern-setup.exe` —— 普通电脑的安装版
+- `ChronLink_<版本>_arm64_modern-setup.exe` —— ARM 设备安装版
+- `ChronLink_<版本>_x64_portable.zip` / `_arm64_portable.zip` —— 便携版
 
-先确认你的系统版本，然后到 [GitHub Releases](https://github.com/maoxinhe/ChronLink/releases/latest) 下载对应安装包。
+完整步骤（含 SmartScreen、WebView2、VC++ 处理）见 [安装与更新](../start/installation.md)。
 
-目前只发布 Windows 版本（x64 / arm64），下载哪个文件、怎么装，见 [安装与更新](../start/installation.md)。
+### Edge / Chrome 提示「通常不会下载 XXX.exe」
 
-## 版本特性列表 1.10.0
+安装包没有买代码签名证书（开源免费分发很常见），浏览器会拦一下：
 
-在此列表内的bug都是已知的。
+1. 下载栏右侧点「…」（更多操作）
+2. 选「保留」
+3. 弹窗里点「显示更多」→「仍然保留」
 
-1.Forge 1.20.1问题
+### 双击 exe 弹出「Windows 已保护你的电脑」
 
-2.模组更新问题
+SmartScreen 的判断依据是签名和下载量，未签名的新版本必然触发：
 
-1.
+1. 点「更多信息」
+2. 点「仍要运行」
 
-## 启动器安装与更新
+### 安装向导里点「浏览」没反应 / 选不了文件夹
 
-**下载的视频教程为 **[**从零上手MC-下载篇**](https://www.bilibili.com/video/BV1pAh56xEQM/)
+系统缺 **WebView2 Runtime**，启动器界面和安装向导都依赖它：
 
-**ChronLink 启动器目前只支持Windows、macOS、linux系统，暂不支持手机(安卓/IOS/鸿蒙)以及电脑的鸿蒙系统**
+1. 装微软官方运行时：[WebView2 下载页](https://developer.microsoft.com/zh-cn/microsoft-edge/webview2)（选 Evergreen Bootstrapper）
+2. 提示需要管理员权限就右键「以管理员身份运行」
+3. 装完重启电脑，再跑安装包
 
-### 我用Edge浏览器，提示我“通常不会下载XXX”怎么办？
+### 提示找不到 VCRUNTIME140_1.dll / api-ms-win-crt-*.dll
 
-浏览器会出于安全考虑拦截一部分下载。请完全相信我们的软件。ChronLink完全开源，可以前往Github自行审计。
+缺 VC++ 运行库：
 
-解决方法：
+- x64：[vc_redist.x64.exe](https://aka.ms/vc14/vc_redist.x64.exe)
+- arm64：[vc_redist.arm64.exe](https://aka.ms/vc14/vc_redist.arm64.exe)
 
-法一：
+装完重新打开启动器。
 
-1.选择右侧三个点（更多操作），如图。
+### 官网 / GitHub 打不开，还能从哪下？
 
-2.在弹出的窗口中，选择“保留”。
+- GitHub Releases：`https://github.com/maoxinhe/ChronLink/releases/latest`（一般能直连，慢就换网络或挂加速）
+- 文档站下载页：[下载](../../index.md) 里是同一批直链
+- 官网：[launcher.camzy.tech](https://launcher.camzy.tech)
 
-3.点击删除右侧的小箭头，选择仍然保留。
+::: warning 注意
+别从网盘、群里转发的安装包更新——那种包没法校验来源，也没法保证是最新版。
+:::
 
-|  |  |
-|---|---|
+### 便携版在哪下载？
 
-[20261022-0439-37.4984884.mp4]
-
-法二：使用谷歌浏览器下载
-
-### 打开软件时，Windows提示我这是未知来源的软件怎么办？
-
-原因如上。
-
-解决方法：
-
-1.点击详细信息。
-
-2.从下方按钮选择保留。
-
-### 我的启动器安装页面不正常/无法选择文件夹怎么办？
-
-本条针对启动器安装界面如下的用户。
-
-出现这种情况的原因是你没有安装Webview2Runtime，这种情况下即使你安装了启动器，你也没有办法正常使用。所以请务必安装！
-
-解决方法：
-
-法一：在官方QQ群内找到群文件，打开“启动器打不开装这个”文件夹，下载“MicrosoftEdgeWebView2RuntimeInstallerX64”并打开安装
-
-法二：通过此链接安装。[https://developer.microsoft.com/zh-cn/microsoft-edge/webview2](https://developer.microsoft.com/zh-cn/microsoft-edge/webview2)
-
-**如果有此提示，请以管理员身份打开重新安装。如果仍然不能解决，重启电脑。**
-
-### 安装时提示找不到VCRUNTIME140_1.dll怎么办？
-
-解决方法：
-
-法一：在官方QQ群内找到群文件，打开“启动器打不开装这个”文件夹，下载“VC_redist.x64.exe”并打开安装
-
-法二：通过此链接安装。[https://aka.ms/vc14/vc_redist.x64.exe（x64版本\](https://aka.ms/vc14/vc_redist.x64.exe%EF%BC%88x64%E7%89%88%E6%9C%AC%5C))
-
-或者[http://learn.microsoft.com/zh-cn/cpp/windows/latest-supported-vc-redist?view=msvc-170查找所有版本](http://learn.microsoft.com/zh-cn/cpp/windows/latest-supported-vc-redist?view=msvc-170%E6%9F%A5%E6%89%BE%E6%89%80%E6%9C%89%E7%89%88%E6%9C%AC)
-
-### 我访问不了官网怎么下载？
-
-Windows/Mac用户可以去ChronLink官方QQ群/QQ频道下载安装包，也可以通过夸克网盘下载安装包。
-
-**请注意，以上渠道提供的安装包可能不是最新版本，在启动器安装完成后，首次打开将会自动下载更新，再次打开后即为最新版本。**
-
-ChronLink官方QQ群：955605306（你真的不知道吗？）
-
-ChronLink官方QQ频道号：ChronLink2026
-
-夸克网盘链接：[https://pan.quark.cn/s/185a383d2a24](https://pan.quark.cn/s/185a383d2a24)
-
-### 官网/Q群没有我的版本的Linux安装包怎么办?/便携版在哪里下载？
-
-请前往Github下载安装包。
-
-Github：github.com/maoxinhe/ChronLink/releases
+在 Releases 的 Assets 里找 `ChronLink_<版本>_x64_portable.zip` 或 `_arm64_portable.zip`，解压到任意目录双击 `ChronLink.exe` 就能用，不写注册表，删目录即卸载。
 
 ### 启动器怎么更新？
 
-启动器为自动更新。每次打开启动器就会自动检查一次是否为最新版本。如不是，则会自动下载更新。你也可以通过启动器的设置-更新内的检查更新按钮检查更新。
+启动器每次启动都会向云端上报自己的版本号，云端比对后决定是否下发更新；有新版会下载并提示重启。也可以在 **设置 → 更新** 里手动点「检查更新」。
 
-**请注意，不建议将更新渠道更换为Github渠道，部分用户的网络环境可能无法访问。**
+### 支不支持 Win7 / Win8？
 
-下载完成后，启动器的右上角将会出现提示你重启启动器的按钮。点击此按钮即可自动重启启动器。
-
-### 官网进不去怎么办？
-
-进入qq群下载最新安装包。
-
-### 支不支持Win7？
-
-不维护win7中axl体验。绝大多数情况下ChronLink将无法在win7下载或启动。
+不支持。启动器依赖 WebView2，最低要 **Windows 10 1809**，推荐 Windows 11。
 
 ## II. 登录账号问题
-
-**登录的视频教程为 **从零上手MC-登录篇** **
 
 ### 我没看到登录的选项怎么办？
 
 请点击窗口右方的「展开边栏」按钮
 
-### 1为什么提示我要先登录正版才能使用离线登录？
+### 为什么提示要先登录正版账号？
 
-对于非中国大陆用户，我们已通过程序层面禁止在未登录正版账号的情况下使用离线模式。
-
-如果您位于中国大陆境内，请检查系统时区和地区的相关设置。
+离线模式只影响本地单人游戏。正版验证服务器和 Realms 必须用正版账号，这是服务端校验，不是启动器限制。
 
 ### 启动器支持哪些登录方式？
 
@@ -158,23 +103,23 @@ Github：github.com/maoxinhe/ChronLink/releases
 
 ### 我没办法正版登录怎么办？
 
-很遗憾，这是你自己网络环境的问题，或者是微软土豆服务器的问题。可以上网查找方法或者询问AI。
+多半是网络连不上微软登录服。先关掉代理 / 加速器再试，仍不行就换网络环境。
 
 ### 为什么我的网络是正常的，却显示为离线模式？
 
-请关闭一切代理和加速器，然后点击刷新连接按钮。同上，我们无法提供任何修复。
+先关掉代理和加速器，点旁边的刷新按钮重连；账号服务在境外，网络环境不对就会显示离线。
 
 ## III. 资源下载问题
 
 ### 下载速度太慢怎么办？
 
-经过7轮优化，下载速度已经尽力优化。如果你的下载速度仍然很慢，可以检查或尝试：
+下载走的是 Modrinth / 官方 CDN，速度取决于你的网络到境外节点的质量。慢的话按顺序试：
 
-· 设置 - 内容与下载 - 下载行为 - 强制多连接下载 是否开启
+- 设置 → 内容与下载 → 下载行为 → 打开「强制多连接下载」
 
-· 在 设置 - 内容与下载 - 下载源内更换这四项（按需更换）
+- 用「网络测试」页选一个延迟最低的下载源（Minecraft 元数据 / Modrinth / CurseForge 可分别设置）
 
-· 如果无法下载，可以尝试在设置 - 内容与下载 - 关闭 DNS over HTTPS。
+- 完全下不动时，在 设置 → 网络与多人游戏 里关闭 DNS over HTTPS 再试
 
 ### 找不到mod下载的地方怎么办？
 
@@ -194,12 +139,6 @@ Github：github.com/maoxinhe/ChronLink/releases
 %APPDATA%\.minecraft
 ```
 
-@tab macOS（后续版本）
-
-```text title="访达 → 前往 → 前往文件夹"
-~/Library/Application Support/minecraft
-```
-
 :::
 
 在创建实例时我们提供了这个选项。你也可以进入设置-存储与备份-Minecraft目录中选择你正在使用的==.minecraft文件夹==。
@@ -209,9 +148,6 @@ Github：github.com/maoxinhe/ChronLink/releases
 ### 直接使用.minecraft文件夹与导入.minecraft文件夹有什么区别？
 
 ChronLink是基于Modrinth app更改的。Modrinth与国内绝大多数启动器所使用的文件结构都不一样。
-
-|  |  |
-|---|---|
 
 简单来说，Modrinth内安装了不同模组但是版本相同的实例只需要共用同一份资源文件。很多资源文件甚至所有实例都可以用。因此这是一种更加节约磁盘空间的文件存储方案。**值得注意的是，其他启动器有版本隔离这一选项，而ChronLink没有，就是因为这种差异。你可以理解为，ChronLink自带版本隔离。**
 
@@ -226,8 +162,6 @@ ChronLink在1.9.6版本提供了对国内常见的.minecraft文件结构的适�
 ### 为什么我导入实例还需要下载内容？
 
 需要下载的内容就是不同启动器之间能够共享的文件。这样能够更好的管理游戏元文件，Java等。模组，光影等文件不会重新下载。
-
-### 启动器能拖入什么内容？
 
 ## V.实例相关问题
 
@@ -262,8 +196,7 @@ ChronLink在1.9.6版本提供了对国内常见的.minecraft文件结构的适�
 在分组名称内输入组名，点击创建新分组，然后选择即可。
 
 ::: warning 注意
-
-分组后**请确保分组方式为分组。
+右键点一下分组标签上的「…」才能重命名 / 删除，直接双击只会切换进入该分组。
 :::
 
 ### 我在其他启动器和ChronLink启动器游玩同一个实例有帧数差距，如何解决？
@@ -306,11 +239,11 @@ ChronLink在1.9.6版本提供了对国内常见的.minecraft文件结构的适�
 
 法一：更换联机方式。目前有陶瓦联机和红石联机两种选择。
 
-法二：去专门负责联机的群聊提问，这里不提供。
+如果两种方案都报错，可把报错截图 + 日志发到 [GitHub Issues](https://github.com/maoxinhe/ChronLink/issues)，附上联机方案名和报错文本。
 
 ### 打开启动器提示Download request failed是什么问题？
 
-多次重启启动器即可。（Update：1.9.5不再允许自选更新源）
+通常是更新检查时连不上云端接口。重启启动器重试；多次失败可在 设置 → 更新 里看当前的更新通道，或到 GitHub Releases 手动下最新包覆盖安装（实例数据不会动）。
 
 ### 提示系统i/o问题找不到指定的路径怎么办？
 
