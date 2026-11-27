@@ -50,9 +50,24 @@
 
 /* 底图统一为浅粉，卡片略亮一档 */
 .vp-doc div[class*='language-'],
-.vp-doc .hint-container,
 .vp-doc table {
   background-color: var(--vp-c-bg-elv);
+}
+
+/* 提示卡片统一浅蓝底（浅色）／深蓝底（深色） */
+.vp-doc .hint-container {
+  background-color: #edf4ff;
+  border: 1px solid #d5e4ff;
+}
+[data-theme='dark'] .vp-doc .hint-container {
+  background-color: #16233d;
+  border: 1px solid #26395c;
+}
+.vp-doc .hint-container .hint-container-title {
+  color: #2f5ba8;
+}
+[data-theme='dark'] .vp-doc .hint-container .hint-container-title {
+  color: #9dc0ff;
 }
 
 /* 底色微调（仅浅色）：表头柔粉、斑马纹更淡 */
