@@ -37,7 +37,7 @@ ChronLink 的进步离不开社区的支持！
 
 - 官方网站：[launcher.camzy.tech](https://launcher.camzy.tech/)
 - 最新版本下载：[GitHub Releases](https://github.com/maoxinhe/ChronLink/releases/latest)
-- 项目源码：[Mystic-Stars/ChronLink](https://github.com/maoxinhe/ChronLink)
+- 项目源码：[maoxinhe/ChronLink](https://github.com/maoxinhe/ChronLink)
 
 ---
 

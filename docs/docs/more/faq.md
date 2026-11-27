@@ -118,7 +118,7 @@ ChronLink官方QQ频道号：ChronLink2026
 
 请前往Github下载安装包。
 
-Github：github.com/Mystic-Stars/ChronLink/releases
+Github：github.com/maoxinhe/ChronLink/releases
 
 ### 启动器怎么更新？
 
