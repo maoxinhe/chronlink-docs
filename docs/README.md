@@ -1,0 +1,53 @@
+---
+home: true
+title: 使用手册
+config:
+  - type: hero
+    index: 1
+    hero:
+      name: ChronLink 使用手册
+      tagline: 从装好第一个实例，到开服联机、玩实验室
+      actions:
+        - text: 开始阅读
+          link: /docs/start/getting-started.md
+          theme: brand
+        - text: 下载启动器
+          link: https://launcher.camzy.tech/
+          theme: alt
+  - type: features
+    index: 2
+    title: 手册导航
+    description: 六个部分，按你手上要做的事挑一个
+    features:
+      - title: 快速开始
+        icon: mdi:rocket-launch-outline
+        details: 下载安装、登录账户、创建第一个世界
+        link: /docs/start/getting-started.md
+        linkText: 先去这里
+      - title: 界面与实例
+        icon: mdi:view-dashboard-outline
+        details: 游戏库怎么用、实例怎么建、设置项都在管什么
+        link: /docs/instance/interface.md
+        linkText: 了解界面
+      - title: 内容与模组
+        icon: mdi:package-variant-closed
+        details: 内容中心搜索、安装模组与整合包、查看项目详情
+        link: /docs/content/content-center.md
+        linkText: 装点东西
+      - title: 皮肤与联机
+        icon: mdi:account-multiple-outline
+        details: 换皮肤、渐变文字、和好友开房间或连服务器
+        link: /docs/online/skins.md
+        linkText: 一起玩
+      - title: 实验室
+        icon: mdi:flask-outline
+        details: 种子地图、投影预览、配方生成器这些实验性功能
+        link: /docs/lab/lab.md
+        linkText: 进去看看
+      - title: 常见问题
+        icon: mdi:help-circle-outline
+        details: 装不上、进不去、联不上，先翻这里
+        link: /docs/more/faq.md
+        linkText: 排个错
+pageLayout: home
+---
