@@ -84,7 +84,7 @@ export default defineUserConfig({
           { text: '内容与模组', prefix: '/docs/content/', items: ['content-center.md', 'install-content.md'] },
           { text: '皮肤与联机', prefix: '/docs/online/', items: ['skins.md', 'multiplayer.md'] },
           { text: '实验室', prefix: '/docs/lab/', items: ['lab.md', 'seed-map.md'] },
-          { text: 'AI 助手', link: '/docs/tools/assistant.md' },
+          { text: 'AI 助手', link: '/ai/' },
           { text: '故障排查', prefix: '/docs/troubleshoot/', items: ['windows.md', 'java.md', 'crash.md'] },
           { text: '常见问题', link: '/docs/more/faq.md' },
         ],
