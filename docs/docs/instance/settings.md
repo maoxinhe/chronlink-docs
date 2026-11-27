@@ -55,6 +55,9 @@ createTime: 2026/11/27 17:36:45
 
 内存分配在 **默认实例选项** 里调（自动 or 手动指定最大内存），还可以开「启动前内存优化」。
 
+<a class="doc-shot-link" href="/shots/gui-settings-java.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-settings-java.webp" alt="设置 → 游戏分组 → Java 与性能：装推荐版本、检测本机 Java、手动指定路径" /></a>
+<p class="shot-cap">设置 → 游戏分组 → Java 与性能：装推荐版本、检测本机 Java、手动指定路径 · 点图可看大图</p>
+
 ### 内容与下载
 
 - **下载来源**：Modrinth / CurseForge 的镜像与站点选择

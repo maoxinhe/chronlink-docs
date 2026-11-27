@@ -19,6 +19,9 @@ createTime: 2026/11/27 17:36:45
 - **启动 / 停止**按钮（启动游戏就点这里）
 - 如果这个实例有更新，这里也能看到
 
+<a class="doc-shot-link" href="/shots/gui-instance-start.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-instance-start.webp" alt="实例详情页：右上角「开始游戏」，下面一排是内容 / 文件 / 截图 / 世界 / 日志" /></a>
+<p class="shot-cap">实例详情页：右上角「开始游戏」，下面一排是内容 / 文件 / 截图 / 世界 / 日志 · 点图可看大图</p>
+
 ## 模组 (Mods)
 
 管理这个实例装的所有模组：

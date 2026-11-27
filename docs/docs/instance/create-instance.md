@@ -49,6 +49,9 @@ Minecraft 更新了很多年，有好多版本：1.20、1.21、26.1、26.2……
 4. 起个名字：比如“我的生存世界”，也可以改个好看的图标
 5. 点击**创建**
 
+<a class="doc-shot-link" href="/shots/gui-create-instance.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-create-instance.webp" alt="游戏库右上角：创建新实例入口，所有实例都从这里长出来" /></a>
+<p class="shot-cap">游戏库右上角：创建新实例入口，所有实例都从这里长出来 · 点图可看大图</p>
+
 ## 第一次启动
 
 在**游戏库**里找到你刚创建的实例，点击 **启动**：

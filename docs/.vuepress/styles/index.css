@@ -207,3 +207,26 @@
   #cl-ai.embedded #cl-ai-panel { position: static; height: 480px; border-radius: 14px; }
   #cl-ai.embedded #cl-ai-panel header { border-radius: 14px 14px 0 0; }
 }
+
+
+/* 文档内实机截图 */
+.vp-doc .doc-shot-link { display: block; max-width: 940px; margin: 18px auto 8px; }
+.vp-doc img.doc-shot {
+  display: block;
+  width: 100%;
+  max-width: 940px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid var(--vp-c-divider);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+.vp-doc .shot-cap {
+  max-width: 940px;
+  margin: 0 auto 20px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+}
+
+.vp-doc .doc-shot-link:hover img.doc-shot { border-color: var(--vp-c-brand-1); }
