@@ -105,8 +105,38 @@ const searchWeb = async (q: string) => {
 }
 
 
+
+// 确定的硬事实：这些问题不做检索、不让模型自由发挥，直接给标准答案并挂原文页
+const FACTS: Array<{ re: RegExp; a: string; url: string; t: string }> = [
+  {
+    re: /win\s?7|win\s?8|win\s?vista|xp/i,
+    a: '不支持。ChronLink 依赖 WebView2，最低要 Windows 10 1809，推荐 Windows 11；Win7 / Win8 上打不开或装不上属于正常结果，没有兼容补丁。',
+    url: '/docs/more/faq.html',
+    t: '常见问题 · 支不支持 Win7 / Win8',
+  },
+  {
+    re: /下载哪个文件|哪个安装包|选哪个包|下哪个/i,
+    a: '按系统选：普通 Intel / AMD 电脑用 ChronLink_<版本>_x64_modern-setup.exe；骁龙 X 等 ARM 设备用 _arm64_modern-setup.exe；不想安装就下 _x64_portable.zip 解压即用。全部在 GitHub Releases。',
+    url: '/docs/more/faq.html',
+    t: '常见问题 · 我该下载哪个文件？',
+  },
+  {
+    re: /便携版|免安装|绿色版/i,
+    a: '在 Releases 的 Assets 里下 ChronLink_<版本>_x64_portable.zip 或 _arm64_portable.zip，解压到任意目录双击 ChronLink.exe 即用，不写注册表，删目录就卸载。',
+    url: '/docs/more/faq.html',
+    t: '常见问题 · 便携版在哪下载？',
+  },
+  {
+    re: /怎么更新|如何更新|自动更新|检查更新/i,
+    a: '启动器每次启动都会向云端上报版本号，云端比对后决定是否下发更新，有新版会下载并提示重启；也可以在 设置 → 更新 里手动点「检查更新」。',
+    url: '/docs/more/faq.html',
+    t: '常见问题 · 启动器怎么更新？',
+  },
+]
+
 // 常见问法 -> 对应文档页（比纯词频检索更稳，避免"怎么安装"被答成某个报错页）
 const INTENTS: Array<[RegExp, string]> = [
+  [/win\s?7|win\s?8|win\s?10|win\s?11|系统要求|配置要求|最低配置|什么系统|支持.{0,4}系统/i, '常见问题'],
   [/杀毒|报毒|拦截|白屏|权限|无法写入|被占用|未知来源|smartscreen|virus/i, 'Windows 安装与权限问题'],
   [/java|jdk|jre|运行环境/i, 'Java 环境问题'],
   [/崩溃|闪退|打不开|启动不了|报错|日志|crash/i, '启动崩溃排查'],
@@ -392,17 +422,32 @@ const mountAssistant = (host: HTMLElement | null) => {
         })
         typing.remove()
         const bubble = addMsg('bot', res.answer)
-        if (res.think) appendThink(bubble, res.think)
+        // 思考过程不展示，避免把模型内部推演当成回复内容
       } else {
+        const fact = FACTS.find((f) => f.re.test(q))
+        if (fact) {
+          typing.remove()
+          const fb = addMsg('bot', fact.a)
+          addSources(fb, [{ title: fact.t, url: fact.url, kind: 'doc' as const }], true, q)
+          busy = false
+          sendBtn.disabled = false
+          return
+        }
+
         const chunks = await loadIndex()
         const { hits, score } = searchDocs(chunks, q)
-        const covered = hits.length > 0 && score >= 10
+        // 用户明确说“上网搜/搜一下/查一下”时，不允许用本站文档抢答
+        const wantsWeb = /(上网|网上搜|搜一下|搜索一下|帮我搜|联网|百度一下|查一下|谷歌|google|bing)/i.test(q)
+        const covered = !wantsWeb && hits.length > 0 && score >= 12
 
         // 按“页面”而不是“片段”取上下文：命中最高的 3 篇整页带进来
         let expanded: DocChunk[] = []
         const intentTitle = INTENTS.find(([re]) => re.test(q))?.[1]
         if (intentTitle) {
-          expanded = chunks.filter((c) => c.title === intentTitle).slice(0, 6)
+          const same = chunks.filter((c) => c.title === intentTitle)
+          const toks = tokenize(q)
+          const rel = same.filter((c) => toks.some((t) => (c.text + (c.heading || '')).includes(t)))
+          expanded = (rel.length ? rel : same).slice(0, 6)
         }
         const titles: string[] = []
         for (const h of hits) if (!titles.includes(h.title) && titles.length < 2) titles.push(h.title)
@@ -422,7 +467,11 @@ const mountAssistant = (host: HTMLElement | null) => {
               .join('\n')}`
           : ''
 
-        const rule = covered
+        const rule = wantsWeb
+          ? webHits.length
+            ? '用户要求联网检索：只依据【检索摘要】里的事实作答，开头注明“（以下为外部检索结果，非本站文档原文）”，并保留摘要里的关键数字；摘要里没有的内容不要补。'
+            : '用户要求联网检索，但本站只接了维基百科检索、这次没查到条目。不要编造任何具体数据（天气、价格、比分、日期都不许猜）。回答两句话：说明这个问题不在本站文档范围、本次外部检索没有结果；然后告诉用户可以点下面按钮直接去搜索。'
+          : covered
           ? '直接依据【本站文档原文片段】回答用户的问题，片段可能来自几篇不同页面：先判断用户问的是哪个对象，只取对应那一篇（例如问“启动器怎么安装”就用《安装与更新》里的下载、安装、确认三步），不要把“给实例装模组”“某个具体报错”“怎么更新”的步骤拼进来。不要复述文档里的提问模板或示例话术。用简洁中文列可执行步骤，不编造原文没有的按钮名和路径，正文不写 [1] 这类编号。'
           : '先依据【用户当前所在页面】作答；页面里确实没有，就给通用方向，并说明这部分不是本站文档写的。'
 
@@ -445,11 +494,18 @@ const mountAssistant = (host: HTMLElement | null) => {
         let finalCovered = covered && !saysMissing
         let web = webHits
         if (!finalCovered && !web.length) web = await searchWeb(q)
+        if (!finalCovered && !web.length) {
+          web = [
+            {
+              title: `去搜索：${q.slice(0, 20)}`,
+              url: 'https://www.bing.com/search?q=' + encodeURIComponent(q),
+              snippet: '外部搜索引擎',
+            },
+          ]
+        }
 
         ;(window as any).L = ((window as any).L || []).concat([{ stage: 'pre', fc: finalCovered, w: web.length }])
-        const docHits: DocChunk[] = intentTitle
-          ? [...chunks.filter((c) => c.title === intentTitle).slice(0, 2), ...hits]
-          : hits
+        const docHits: DocChunk[] = intentTitle ? expanded.slice(0, 2) : hits
         const sources: Source[] = finalCovered
           ? docHits.map((h) => ({
               title: h.heading ? `${h.title} · ${h.heading}` : h.title,
@@ -458,7 +514,7 @@ const mountAssistant = (host: HTMLElement | null) => {
             }))
           : web.map((w) => ({ title: w.title, url: w.url, kind: 'web' as const }))
         addSources(bubble, sources, finalCovered, q)
-        if (res.think) appendThink(bubble, res.think)
+        // 思考过程不展示，避免把模型内部推演当成回复内容
       }
     } catch (e: any) {
       typing.remove()
