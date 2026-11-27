@@ -18,8 +18,8 @@ createTime: 2026/11/27 17:36:45
 | **资源包 (Resource Packs)** | 换游戏外观、音效 | 想让画面更好看可以试试 |
 | **光影 (Shader Packs)** | 画质特效，非常吃配置 | 电脑配置一般的话先别碰 |
 
-<a class="doc-shot-link" href="/shots/gui-browse-install.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-browse-install.webp" alt="发现内容页：左边选类型，条目右侧就是「安装」，点了要选装进哪个实例" /></a>
-<p class="shot-cap">发现内容页：左边选类型，条目右侧就是「安装」，点了要选装进哪个实例 · 点图可看大图</p>
+<a class="doc-shot-link" href="/shots/gui-browse-install.webp" target="_blank" rel="noopener"><img class="doc-shot" src="/shots/gui-browse-install.webp" alt="① 发现内容页：左边先选类型，条目右侧就是「安装」，点完要选装进哪个实例" /></a>
+<p class="shot-cap">① 发现内容页：左边先选类型，条目右侧就是「安装」，点完要选装进哪个实例 · 点图可看大图</p>
 
 ## 搜索
 
