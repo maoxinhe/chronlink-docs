@@ -104,12 +104,13 @@ onMounted(() => {
   <div class="ai-page" :class="{ chatting: messages.length }">
     <header class="ai-bar">
       <a class="back" href="/">← 返回文档</a>
-      <span class="brand">🐼 喵科大小助手</span>
+      <img class="brand-logo" src="/logo.png" alt="" />
+      <span class="brand">喵科大小助手</span>
     </header>
 
     <main class="ai-main">
       <div v-if="!messages.length" class="hero">
-        <div class="logo">🎋</div>
+        <img class="logo" src="/logo.png" alt="ChronLink" />
         <h1>有什么可以帮你？</h1>
       </div>
 
@@ -202,6 +203,7 @@ onMounted(() => {
   text-decoration: none;
 }
 .ai-bar .back:hover { color: var(--vp-c-brand-1, #d4568f); }
+.ai-bar .brand-logo { width: 20px; height: 20px; border-radius: 50%; }
 .ai-bar .brand { font-weight: 600; }
 .ai-bar .hint { margin-left: auto; color: var(--vp-c-text-3, #999); }
 
@@ -220,13 +222,11 @@ onMounted(() => {
   padding: 40px 0 28px;
 }
 .hero .logo {
-  font-size: 40px;
-  width: 74px;
-  height: 74px;
-  line-height: 74px;
+  width: 84px;
+  height: 84px;
+  display: block;
   margin: 0 auto 18px;
   border-radius: 22px;
-  background: #fff5f7;
 }
 .hero h1 { font-size: 26px; font-weight: 700; margin: 0 0 12px; }
 .hero p { font-size: 14px; line-height: 1.8; color: var(--vp-c-text-2, #666); margin: 0; }
@@ -371,7 +371,6 @@ onMounted(() => {
 <style>
 [data-theme='dark'] .ai-page { background: #16171a; color: #e6e7eb; }
 [data-theme='dark'] .ai-bar { border-color: #2a2b30; }
-[data-theme='dark'] .hero .logo { background: #241d22; }
 [data-theme='dark'] .composer { border-color: #2f3036; background: #1d1e22; box-shadow: none; }
 [data-theme='dark'] .composer-wrap { background: linear-gradient(to bottom, transparent, #16171a 26%); }
 [data-theme='dark'] .src { background: #241d22; border-color: #3a2b33; color: #e3aec5; }
