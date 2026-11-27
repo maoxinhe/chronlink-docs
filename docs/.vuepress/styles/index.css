@@ -176,3 +176,34 @@
 
 /* hidden 优先，避免 flex/定位覆盖导致面板关着也挡点击 */
 #cl-ai-panel[hidden] { display: none !important; }
+
+/* 助手回答的来源按钮 */
+#cl-ai-body .src { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+#cl-ai-body .src-note { margin: 0 0 2px; font-size: 11px; color: var(--vp-c-text-3); }
+#cl-ai .src-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border-radius: 8px; font-size: 12px; line-height: 1.4;
+  border: 1px solid var(--vp-c-divider); background: var(--vp-c-bg-elv);
+  color: var(--vp-c-text-2); text-decoration: none; transition: .15s;
+}
+#cl-ai .src-btn:hover { border-color: var(--vp-c-brand-1); color: var(--vp-c-brand-1); }
+#cl-ai .src-btn .txt { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#cl-ai .src-btn .badge {
+  flex: none; font-size: 10px; padding: 1px 6px; border-radius: 999px;
+  background: var(--vp-c-brand-soft); color: var(--vp-c-brand-1); font-weight: 600;
+}
+#cl-ai .src-btn .badge.web { background: #e8f1ff; color: #3060b0; }
+[data-theme='dark'] #cl-ai .src-btn .badge.web { background: #1d2b46; color: #9dc0ff; }
+#cl-ai .src-btn.plain { align-self: flex-start; margin-top: 6px; border-style: dashed; color: var(--vp-c-text-3); }
+
+/* 独立页面里的内嵌助手 */
+#cl-ai.embedded { position: static; margin: 20px 0 28px; }
+#cl-ai.embedded #cl-ai-panel {
+  width: 100%; max-height: none; height: 520px;
+  border-radius: 14px; box-shadow: 0 6px 24px rgba(196, 65, 123, .12);
+}
+#cl-ai.embedded #cl-ai-panel header { border-radius: 14px 14px 0 0; }
+@media (max-width: 768px) {
+  #cl-ai.embedded #cl-ai-panel { position: static; height: 480px; border-radius: 14px; }
+  #cl-ai.embedded #cl-ai-panel header { border-radius: 14px 14px 0 0; }
+}

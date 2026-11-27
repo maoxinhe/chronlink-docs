@@ -23,6 +23,8 @@ const content = [
 const online = ['skins.md', 'change-skin.md', 'gradient-text.md', 'multiplayer.md', 'join-server.md']
 const lab = ['lab.md', 'lab-guide.md', 'seed-map.md', 'projection-preview.md', 'recipe-generator.md']
 const more = ['faq.md', 'contributing.md']
+const tools = ['assistant.md', 'resources.md']
+const troubleshoot = ['windows.md', 'java.md', 'crash.md', 'multiplayer.md']
 
 export default defineUserConfig({
   lang: 'zh-CN',
@@ -82,6 +84,8 @@ export default defineUserConfig({
           { text: '内容与模组', prefix: '/docs/content/', items: ['content-center.md', 'install-content.md'] },
           { text: '皮肤与联机', prefix: '/docs/online/', items: ['skins.md', 'multiplayer.md'] },
           { text: '实验室', prefix: '/docs/lab/', items: ['lab.md', 'seed-map.md'] },
+          { text: 'AI 助手', link: '/docs/tools/assistant.md' },
+          { text: '故障排查', prefix: '/docs/troubleshoot/', items: ['windows.md', 'java.md', 'crash.md'] },
           { text: '常见问题', link: '/docs/more/faq.md' },
         ],
       },
@@ -90,11 +94,13 @@ export default defineUserConfig({
     ],
     sidebar: {
       '/docs/': [
+        { text: '助手与工具', prefix: '/docs/tools/', collapsed: false, items: tools },
         { text: '快速开始', prefix: '/docs/start/', collapsed: false, items: start },
         { text: '界面与实例', prefix: '/docs/instance/', collapsed: false, items: instance },
         { text: '内容与模组', prefix: '/docs/content/', collapsed: false, items: content },
         { text: '皮肤与联机', prefix: '/docs/online/', collapsed: false, items: online },
         { text: '实验室', prefix: '/docs/lab/', collapsed: false, items: lab },
+        { text: '故障排查', prefix: '/docs/troubleshoot/', collapsed: false, items: troubleshoot },
         { text: '其他', prefix: '/docs/more/', collapsed: false, items: more },
       ],
     },

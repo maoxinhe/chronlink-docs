@@ -4,11 +4,74 @@ import './styles/index.css'
 const API_BASE = 'https://user.camzy.tech'
 const API_KEY = 'ak_bA636FVtGVqWTIgY1BBYWWrcLgd-eCMr'
 
-const mountAssistant = () => {
+type DocChunk = { title: string; heading: string; url: string; text: string }
+type Source = { title: string; url: string; kind: 'doc' | 'web' }
+
+let indexPromise: Promise<DocChunk[]> | null = null
+const loadIndex = () => {
+  if (!indexPromise) {
+    const base = (import.meta as any).env?.BASE_URL || '/'
+    indexPromise = fetch(`${base}docs-index.json`)
+      .then((r) => (r.ok ? r.json() : []))
+      .catch(() => [])
+  }
+  return indexPromise
+}
+
+const tokenize = (q: string) => {
+  const tokens = new Set<string>()
+  const lower = q.toLowerCase()
+  for (const w of lower.match(/[a-z0-9][a-z0-9.+-]{1,}/g) || []) tokens.add(w)
+  const runs = q.match(/[\u4e00-\u9fa5]{2,}/g) || []
+  for (const run of runs) {
+    if (run.length <= 4) tokens.add(run)
+    for (let i = 0; i < run.length - 1; i++) tokens.add(run.slice(i, i + 2))
+  }
+  return [...tokens].filter((t) => t.length >= 2).slice(0, 40)
+}
+
+const searchDocs = (chunks: DocChunk[], q: string) => {
+  const tokens = tokenize(q)
+  if (!tokens.length) return { hits: [] as DocChunk[], score: 0 }
+  const scored = chunks.map((c) => {
+    let s = 0
+    for (const t of tokens) {
+      if (c.heading.toLowerCase().includes(t)) s += 6
+      if (c.title.toLowerCase().includes(t)) s += 3
+      const n = c.text.toLowerCase().split(t).length - 1
+      s += Math.min(n, 3) * 2
+    }
+    return { c, s }
+  })
+  scored.sort((a, b) => b.s - a.s)
+  const hits = scored.filter((x) => x.s >= 8).slice(0, 4)
+  return { hits: hits.map((x) => x.c), score: scored[0]?.s || 0 }
+}
+
+const searchWeb = async (q: string) => {
+  try {
+    const url =
+      'https://zh.wikipedia.org/w/api.php?action=query&format=json&origin=*&list=search&srlimit=2&srsearch=' +
+      encodeURIComponent(q.slice(0, 60))
+    const resp = await fetch(url)
+    const data = await resp.json()
+    return (data?.query?.search || []).slice(0, 2).map((r: any) => ({
+      title: String(r.title),
+      url: `https://zh.wikipedia.org/wiki/${encodeURIComponent(String(r.title))}`,
+      snippet: String(r.snippet || '').replace(/<[^>]+>/g, ''),
+    }))
+  } catch {
+    return [] as Array<{ title: string; url: string; snippet: string }>
+  }
+}
+
+const mountAssistant = (host: HTMLElement | null) => {
   if (document.getElementById('cl-ai')) return
+  const embedded = !!host
 
   const root = document.createElement('div')
   root.id = 'cl-ai'
+  if (embedded) root.classList.add('embedded')
   root.innerHTML = `
   <button id="cl-ai-launch" type="button" aria-label="打开 AI 助手">
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a2 2 0 0 1 2 2v1h3a4 4 0 0 1 4 4v3h1a2 2 0 0 1 0 4h-1v3a4 4 0 0 1-4 4h-3v1a2 2 0 0 1-4 0v-1H8a4 4 0 0 1-4-4v-3H3a2 2 0 0 1 0-4h1V9a4 4 0 0 1 4-4h3V4a2 2 0 0 1 2-2Zm-2 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm-5.5 6.2a.9.9 0 0 0 .3 1.3c1.2.7 2.8 1 3.2 1s2-.3 3.2-1a.9.9 0 1 0-.9-1.6c-.9.5-1.9.7-2.3.7s-1.4-.2-2.3-.7a.9.9 0 0 0-1 .1Z"/></svg>
@@ -18,19 +81,19 @@ const mountAssistant = () => {
     <header>
       <div class="ttl">
         <strong>喵科大小助手</strong>
-        <span>基于本站文档作答</span>
+        <span>查本站文档作答，并给出原文位置</span>
       </div>
       <button id="cl-ai-close" type="button" aria-label="关闭">✕</button>
     </header>
     <div id="cl-ai-body">
       <div class="msg bot">
-        <div class="bubble">我是文档助手。装不上、报错、找不到按钮，直接问，或者把报错截图发我，我帮你对着文档排查。</div>
+        <div class="bubble">我是文档助手。装不上、报错、找不到按钮，直接问，或者把报错截图发我。回答会附上文档原文位置，没收录的我会标出来。</div>
       </div>
       <div class="chips">
         <button type="button" data-q="启动器怎么安装？">怎么安装</button>
         <button type="button" data-q="启动时报错打不开怎么办？">启动报错</button>
         <button type="button" data-q="怎么给实例添加 mod 和光影？">加模组光影</button>
-        <button type="button" data-q="正版和离线账户有什么区别，大型服务器进不去怎么办？">正版验证</button>
+        <button type="button" data-q="Java 要装哪个版本？">Java 版本</button>
       </div>
     </div>
     <div id="cl-ai-img-preview" hidden>
@@ -47,9 +110,18 @@ const mountAssistant = () => {
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3.4 20.6 21 12 3.4 3.4l.1 6.6L15 12 3.5 14l-.1 6.6Z"/></svg>
       </button>
     </form>
-    <p class="tip">AI 生成内容仅供参考，以文档与官方说明为准。</p>
+    <p class="tip">AI 生成内容仅供参考；标注「网络」的来源非本站文档。</p>
   </div>`
-  document.body.appendChild(root)
+
+  if (embedded) {
+    host.appendChild(root)
+    root.classList.add('open')
+    const p = root.querySelector('#cl-ai-panel') as HTMLElement
+    p.hidden = false
+    root.querySelector('#cl-ai-launch')?.remove()
+  } else {
+    document.body.appendChild(root)
+  }
 
   const panel = root.querySelector('#cl-ai-panel') as HTMLElement
   const body = root.querySelector('#cl-ai-body') as HTMLElement
@@ -69,15 +141,24 @@ const mountAssistant = () => {
     setTimeout(() => input.focus(), 60)
   }
   const close = () => {
+    if (embedded) return
     panel.hidden = true
     root.classList.remove('open')
   }
 
-  root.querySelector('#cl-ai-launch')!.addEventListener('click', () => (panel.hidden ? open() : close()))
+  root.querySelector('#cl-ai-launch')?.addEventListener('click', () => (panel.hidden ? open() : close()))
   root.querySelector('#cl-ai-close')!.addEventListener('click', close)
 
   const scrollBottom = () => {
     body.scrollTop = body.scrollHeight
+  }
+
+  const pageTitle = () => document.querySelector('h1')?.textContent?.trim() || document.title
+
+  const pageContext = () => {
+    const doc = document.querySelector('.vp-doc')
+    const text = (doc?.textContent || '').replace(/\s+/g, ' ').slice(0, 1000)
+    return `【用户正在看：${pageTitle()}】\n${text}`
   }
 
   const addMsg = (role: 'user' | 'assistant', text: string, image?: string) => {
@@ -98,6 +179,58 @@ const mountAssistant = () => {
     wrap.appendChild(bubble)
     body.appendChild(wrap)
     scrollBottom()
+    return bubble
+  }
+
+  const appendThink = (bubble: HTMLElement, think: string) => {
+    const details = document.createElement('details')
+    details.className = 'think'
+    details.innerHTML = '<summary>查看思考过程</summary>'
+    const pre = document.createElement('p')
+    pre.textContent = think
+    details.appendChild(pre)
+    bubble.appendChild(details)
+    scrollBottom()
+  }
+
+  const addSources = (bubble: HTMLElement, sources: Source[], covered: boolean, query: string) => {
+    if (sources.length) {
+      const box = document.createElement('div')
+      box.className = 'src'
+      if (!covered) {
+        const note = document.createElement('p')
+        note.className = 'src-note'
+        note.textContent = '本站文档没收录这条，下面是外部检索结果，仅供参照：'
+        box.appendChild(note)
+      }
+      sources.forEach((s) => {
+        const a = document.createElement('a')
+        a.className = `src-btn ${s.kind}`
+        a.href = s.url
+        a.target = '_blank'
+        a.rel = 'noopener'
+        const badge = document.createElement('span')
+        badge.className = `badge ${s.kind}`
+        badge.textContent = s.kind === 'web' ? '网络' : '文档'
+        const txt = document.createElement('span')
+        txt.className = 'txt'
+        txt.textContent = s.title
+        a.appendChild(badge)
+        a.appendChild(txt)
+        box.appendChild(a)
+      })
+      bubble.appendChild(box)
+    }
+    if (!covered) {
+      const more = document.createElement('a')
+      more.className = 'src-btn plain'
+      more.href = `https://www.bing.com/search?q=${encodeURIComponent(`${query} Minecraft`)}`
+      more.target = '_blank'
+      more.rel = 'noopener'
+      more.textContent = '去网上搜更多'
+      bubble.appendChild(more)
+    }
+    scrollBottom()
   }
 
   const addThinking = () => {
@@ -107,15 +240,6 @@ const mountAssistant = () => {
     body.appendChild(wrap)
     scrollBottom()
     return wrap
-  }
-
-  const pageTitle = () => document.querySelector('h1')?.textContent?.trim() || document.title
-
-  const pageContext = () => {
-    const title = pageTitle()
-    const doc = document.querySelector('.vp-doc')
-    const text = (doc?.textContent || '').replace(/\s+/g, ' ').slice(0, 1200)
-    return `【用户正在看的文档页：${title}】\n页面内容摘要：${text}`
   }
 
   const callApi = async (endpoint: '/chat' | '/vision', payload: Record<string, unknown>) => {
@@ -194,6 +318,7 @@ const mountAssistant = () => {
     const typing = addThinking()
     try {
       let res: { answer: string; think?: string }
+
       if (image) {
         res = await callApi('/vision', {
           image,
@@ -201,32 +326,49 @@ const mountAssistant = () => {
             q || '看看这张截图里是什么，有没有报错，我该怎么处理'
           }。只根据截图里实际能看到的画面回答，别整段复述图片文字；如果截图里没有报错信息，就直接说没看到，并告诉我还需要截哪一块。`,
         })
+        typing.remove()
+        const bubble = addMsg('bot', res.answer)
+        if (res.think) appendThink(bubble, res.think)
       } else {
-        history.push({ role: 'user', content: `${pageContext()}\n\n我的问题：${q}` })
+        const chunks = await loadIndex()
+        const { hits, score } = searchDocs(chunks, q)
+        const covered = hits.length > 0 && score >= 12
+        const needWeb = !covered && score < 10
+        const webHits = needWeb ? await searchWeb(q) : []
+
+        const context = covered
+          ? `【本站文档原文片段】\n${hits
+              .map((h, i) => `[${i + 1}]《${h.title}》- ${h.heading}\n${h.text.slice(0, 500)}`)
+              .join('\n\n')}`
+          : webHits.length
+          ? `【本站文档没有直接答案；以下是维基百科检索摘要，可能相关】\n${webHits
+              .map((w) => `· ${w.title}：${w.snippet}`)
+              .join('\n')}`
+          : ''
+
+        const rule = covered
+          ? '只依据上面文档原文作答。先判断哪一段和用户描述的现象最接近，用那段作答，别把别小节的步骤拼进来。用简洁中文列可执行步骤，不要编造文档里没有的按钮名和路径，也不要在正文里写 [1] 这类编号，出处由界面自动附。涉及版本号、数字对应关系的，直接照抄原文取值，不要改写。'
+          : '本站文档没有这条内容。能推断就给通用方向，并明确说明这不是本站文档内容。'
+
+        history.push({
+          role: 'user',
+          content: `${pageContext()}\n\n${context}\n\n【要求】${rule}\n我的问题：${q}`,
+        })
         res = await callApi('/chat', { messages: history.slice(-10) })
         history.push({ role: 'assistant', content: res.answer })
+        typing.remove()
+
+        const bubble = addMsg('bot', res.answer)
+        const sources: Source[] = covered
+          ? hits.map((h) => ({
+              title: h.heading ? `${h.title} · ${h.heading}` : h.title,
+              url: h.url,
+              kind: 'doc' as const,
+            }))
+          : webHits.map((w) => ({ title: w.title, url: w.url, kind: 'web' as const }))
+        addSources(bubble, sources, covered, q)
+        if (res.think) appendThink(bubble, res.think)
       }
-      typing.remove()
-      const wrap = document.createElement('div')
-      wrap.className = 'msg bot'
-      const bubble = document.createElement('div')
-      bubble.className = 'bubble'
-      const textEl = document.createElement('div')
-      textEl.className = 'text'
-      textEl.textContent = res.answer
-      bubble.appendChild(textEl)
-      if (res.think) {
-        const details = document.createElement('details')
-        details.className = 'think'
-        details.innerHTML = '<summary>查看思考过程</summary>'
-        const pre = document.createElement('p')
-        pre.textContent = res.think
-        details.appendChild(pre)
-        bubble.appendChild(details)
-      }
-      wrap.appendChild(bubble)
-      body.appendChild(wrap)
-      scrollBottom()
     } catch (e: any) {
       typing.remove()
       addMsg('bot', `出了点问题：${e?.message || '未知错误'}。也可以先翻一下对应文档页。`)
@@ -260,7 +402,8 @@ const mountAssistant = () => {
 export default defineClientConfig({
   setup() {
     if (typeof window === 'undefined') return
-    if (document.readyState === 'complete') setTimeout(mountAssistant, 400)
-    else window.addEventListener('load', () => setTimeout(mountAssistant, 400))
+    const boot = () => setTimeout(() => mountAssistant(document.getElementById('cl-ai-embed')), 400)
+    if (document.readyState === 'complete') boot()
+    else window.addEventListener('load', boot)
   },
 })

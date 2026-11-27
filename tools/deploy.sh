@@ -3,6 +3,7 @@
 set -e
 cd "$(dirname "$0")/.."
 GH_TOKEN="${GH_TOKEN:?需要 GH_TOKEN}"
+python3 tools/build_index.py
 npx vuepress build docs
 rm -rf /tmp/ghp && cp -r docs/.vuepress/dist /tmp/ghp
 cd /tmp/ghp && touch .nojekyll
