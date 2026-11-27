@@ -104,13 +104,13 @@ onMounted(() => {
   <div class="ai-page" :class="{ chatting: messages.length }">
     <header class="ai-bar">
       <a class="back" href="/">← 返回文档</a>
-      <img class="brand-logo" src="/logo.png" alt="" />
+      <img class="brand-logo" src="/logo-ai.png" alt="" />
       <span class="brand">喵科大小助手</span>
     </header>
 
     <main class="ai-main">
       <div v-if="!messages.length" class="hero">
-        <img class="logo" src="/logo.png" alt="ChronLink" />
+        <img class="logo" src="/logo-ai.png" alt="ChronLink" />
         <h1>有什么可以帮你？</h1>
       </div>
 
