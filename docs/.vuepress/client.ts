@@ -7,6 +7,8 @@ export default defineClientConfig({
 
     const mount = () => {
       if (document.getElementById('reading-progress')) return
+      // 清理任何历史残留实例，保证只有一个
+      document.querySelectorAll('#reading-progress').forEach((n) => n.remove())
       const el = document.createElement('div')
       el.id = 'reading-progress'
       el.innerHTML =
@@ -24,7 +26,7 @@ export default defineClientConfig({
         bar.style.strokeDashoffset = String(100.5 * (1 - progress))
         label.textContent = `${Math.round(progress * 100)}%`
         const onDoc = !!document.querySelector('.vp-doc')
-        el.classList.toggle('is-visible', onDoc && progress > 0.01)
+        el.classList.toggle('is-visible', onDoc && progress > 0.01 && progress < 0.995)
       }
 
       update()
