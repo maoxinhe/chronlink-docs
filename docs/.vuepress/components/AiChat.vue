@@ -21,10 +21,10 @@ const inputEl = ref<HTMLTextAreaElement | null>(null)
 const fileEl = ref<HTMLInputElement | null>(null)
 
 const QUICK = [
-  '启动器怎么安装？',
-  '启动时报错打不开怎么办？',
-  '怎么给实例加模组和光影？',
-  'Java 要装哪个版本？',
+  { label: '怎么安装', q: '启动器怎么安装？' },
+  { label: '启动报错', q: '启动时报错打不开怎么办？' },
+  { label: '加模组光影', q: '怎么给实例加模组和光影？' },
+  { label: 'Java 版本', q: 'Java 要装哪个版本？' },
 ]
 
 const grow = () => {
@@ -105,14 +105,12 @@ onMounted(() => {
     <header class="ai-bar">
       <a class="back" href="/">← 返回文档</a>
       <span class="brand">🐼 喵科大小助手</span>
-      <span class="hint">查文档 · 附原文</span>
     </header>
 
     <main class="ai-main">
       <div v-if="!messages.length" class="hero">
         <div class="logo">🎋</div>
         <h1>有什么可以帮你？</h1>
-        <p>问 ChronLink 的安装、报错、实例和联机问题。答案会附上文档原文；<br />文档里没有的，会去网上找并标明来源。</p>
       </div>
 
       <div ref="scrollBox" class="thread">
@@ -121,7 +119,7 @@ onMounted(() => {
           <p class="txt" :class="{ err: m.error }">{{ m.text }}</p>
 
           <div v-if="m.sources && m.sources.length" class="srcs">
-            <span v-if="!m.covered" class="src-note">文档没收录，下面是外部结果：</span>
+            <span v-if="!m.covered" class="src-note">文档未收录 · 外部结果</span>
             <a
               v-for="(s, k) in m.sources"
               :key="k"
@@ -142,7 +140,7 @@ onMounted(() => {
       </div>
 
       <div v-if="!messages.length" class="quick">
-        <button v-for="q in QUICK" :key="q" type="button" @click="submit(q)">{{ q }}</button>
+        <button v-for="item in QUICK" :key="item.q" type="button" @click="submit(item.q)">{{ item.label }}</button>
       </div>
     </main>
 
@@ -179,7 +177,6 @@ onMounted(() => {
           </button>
         </div>
       </div>
-      <p class="disclaimer">AI 生成内容仅供参考，以启动器实际界面为准。</p>
     </div>
   </div>
 </template>
